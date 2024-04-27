@@ -1,0 +1,239 @@
+import java.io.*;
+import java.util.*;
+import java.lang.reflect.Modifier;
+import javax.lang.model.SourceVersion;
+public class Lexema
+{
+	int contL = 1;
+	Vector vec=new Vector(), vect2=new Vector();
+	Identifier id;
+	public void lerDoFile()
+	{
+		String umaLinha, token,classi; int linha;
+		StringTokenizer umaCadeia;
+		boolean comentado=false;
+		try
+		{
+			FileReader fl=new FileReader("File.txt");
+			BufferedReader br=new BufferedReader(fl);
+			umaLinha=br.readLine();
+			
+			
+			while(umaLinha!=null)
+			{
+				umaCadeia=new StringTokenizer(umaLinha," ");
+				String disposable;
+				
+				while(umaCadeia.hasMoreTokens())
+				{
+					
+					disposable=umaCadeia.nextToken();
+					String a=disposable.replaceAll("[\\s\\t]+", "");
+					//System.out.println(a);
+					disposable=a;
+					/*while(disposable.equals(" "))
+					{
+						disposable = umaCadeia.nextToken();
+					}*/
+					if(disposable.startsWith("//"))
+					{
+						//disposable=umaCadeia.nextToken();
+						while(umaCadeia.hasMoreTokens())
+						{
+							disposable=umaCadeia.nextToken();
+						}
+					}
+					else
+					{
+						if(disposable.startsWith("/*") && comentado == false)
+						{
+							comentado = true;
+						}
+						if(comentado == true)
+						{
+							if(!disposable.contains("*/"))
+							{
+								
+								while((umaCadeia.hasMoreTokens()) && (!disposable.contains("*/")))
+								{
+									disposable = umaCadeia.nextToken();
+									if(disposable.contains("*/"))
+									{
+										comentado=false;
+										// nao chega System.out.println(comentado);
+									}
+									
+								}
+								if(disposable.contains("*/"))
+								{
+									comentado=false;
+									if(umaCadeia.hasMoreElements())
+									{
+										disposable=umaCadeia.nextToken();
+									}
+									
+									//System.out.println(comentado);
+								}
+								
+							}
+							if(disposable.startsWith("*/"))
+							{
+								comentado=false;
+							}
+						}
+						else
+						{
+							if(disposable.isBlank())
+							{
+								
+							}
+							else
+							{
+								
+								if(disposable.contains("("))
+								{
+									
+									
+								}else
+								{
+									
+								}
+								token=disposable;
+							
+								classi=classif(token);								
+								
+								linha=contL;
+								CriarLexema l = new CriarLexema(token, classi, linha);
+								vec.add(l);
+							}
+						
+						}
+					}
+				}
+				
+				
+				
+				vec.trimToSize();
+				contL ++;
+				umaLinha=br.readLine();
+			}
+			br.close();
+			System.out.println("Ficheiro lido");
+		}
+		catch(FileNotFoundException fnf)
+		{
+			System.out.println(fnf.getMessage());
+		}
+		catch(IOException io)
+		{
+			System.out.println(io.getMessage());
+		}
+		organizar();
+		visualizar();
+	}
+
+	private void organizar() {
+		CriarLexema m;
+		for(int i=0; i<vec.size();i++)
+		{
+			m = (CriarLexema) vec.elementAt(i);
+			String tok=m.getToken();
+			String classi = m.getClassi();
+			int lin = m.getLinha();
+			String bf,af;
+			boolean entrou=false;
+			//verificar cada token e separar, tou a arrumar cama agora
+			int r=0;
+			for(int j=0;j<tok.length();j++)//percorrer cada string
+			{
+				
+				String st = tok.charAt(j)+"";
+				if(!classif(st).equals("epa"))
+				{
+					entrou =true;
+					bf = tok.substring(r, j);
+					
+					if(j!=0 && !bf.equals(""))
+					{
+						CriarLexema l = new CriarLexema(bf,classif(bf),lin);
+						vect2.add(l);
+					}
+					
+					
+						CriarLexema l2 = new CriarLexema(st,classif(st),lin);
+						vect2.add(l2);
+					
+					
+					
+					
+					r=j+1;
+				}
+				else
+				{
+					
+				}
+			}
+			if(entrou==false)
+			{
+				vect2.add(m);
+				vect2.trimToSize();
+				entrou=false;
+			}
+			
+		}
+	}
+
+	private void visualizar() {
+		System.out.println("======================================================");
+		System.out.println("|      Token       |     classificacao    |Linha|");
+		System.out.println("======================================================");
+		CriarLexema m;
+		
+		for(int i=0; i<vect2.size(); i++)
+		{
+			m = (CriarLexema) vect2.elementAt(i);
+			String tok=m.getToken();
+			String classi = m.getClassi();
+			int lin = m.getLinha();
+			
+			System.out.printf("|%20s|%25s|%5d|",tok,classi,lin);
+			System.out.println("\n======================================================");
+
+		}
+		
+	}
+	public String classif(String a)
+	{
+		String classi;
+		classi=id.getCategory(a);
+		if (classi==null)
+		{
+		    classi = "epa";
+		}
+		return classi;
+	}
+	
+/*	public void Separar(String a, int b)
+	{
+		int r=0;
+		for(int i=0; i<a.length();i++)
+		{
+			
+			if(id.lista.contains(a.charAt(i)))
+			{
+				String c = a.substring(r, i);
+				CriarLexema l = new CriarLexema(c, classif(c), b);
+				vec.add(l);
+				System.out.println("chegou");
+				r=i;
+			}
+		}
+		
+	}*/
+
+	
+	
+	
+	
+
+}
